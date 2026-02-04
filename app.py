@@ -1,47 +1,3 @@
-Hugging Face's logo
-Hugging Face
-Models
-Datasets
-Spaces
-Community
-Docs
-Enterprise
-Pricing
-
-
-Spaces:
-blablack89
-/
-my_new_space
-
-
-like
-0
-
-Logs
-App
-Files
-Community
-Settings
-my_new_space
-/
-app.py
-
-blablack89's picture
-blablack89
-Update app.py
-371a820
-verified
-3 days ago
-raw
-
-Copy download link
-history
-blame
-edit
-delete
-
-5.29 kB
 import gradio as gr
 import pandas as pd
 import numpy as np
@@ -212,4 +168,5 @@ iface = gr.Interface(
 # Launch app
 # ============================
 iface.launch(ssr_mode=False)
+
 
