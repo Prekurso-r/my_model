@@ -4,6 +4,7 @@ import numpy as np
 import joblib
 import shap
 import matplotlib.pyplot as plt
+import os
 
 # ============================
 # Load model
@@ -127,6 +128,7 @@ iface = gr.Interface(
         gr.Number(label="Blood Glucose Level (mg/dL)", value=100.0),
         gr.Checkbox(label="Show SHAP Explainability", value=False)
     ],
+
     outputs=[
         # probability
         gr.Label(num_top_classes=1, label="Diabetes Risk Probability"),
@@ -167,7 +169,15 @@ iface = gr.Interface(
 # ============================
 # Launch app
 # ============================
-iface.launch()
+if __name__ == "__main__":
+    # Get the port from Render's environment, default to 7860 if not found
+    port = int(os.environ.get("PORT", 7860))
+    
+    iface.launch(
+        server_name="0.0.0.0", 
+        server_port=port
+    )
+
 
 
 
