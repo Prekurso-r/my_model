@@ -80,6 +80,7 @@ def predict_diabetes(
 
     prediction_text = "Diabetes Likely ⚠️" if prediction == 1 else "Diabetes Unlikely ✅"
 
+
     # ----------------------------
     # SHAP plot
     # ----------------------------
@@ -90,7 +91,7 @@ def predict_diabetes(
         plt.close(fig)
         return img
 
-    shap_fig = None
+    shap_img = None  # Default to None
     if show_shap:
         explainer = shap.TreeExplainer(model)
         shap_values = explainer.shap_values(input_df)
@@ -106,9 +107,10 @@ def predict_diabetes(
             show=False
         )
         shap_img = shap_plot_to_numpy(fig)
-        return shap_img
+        # REMOVED the "return shap_img" line that was here!
 
-    return probability, risk_level, prediction_text, interpretation, shap_fig, input_df
+    # ALWAYS return all 6 values at the very end
+    return probability, risk_level, prediction_text, interpretation, shap_img, input_df
 
 
 # ============================
@@ -177,6 +179,7 @@ if __name__ == "__main__":
         server_name="0.0.0.0", 
         server_port=port
     )
+
 
 
 
