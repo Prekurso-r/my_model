@@ -167,6 +167,7 @@ iface = gr.Interface(
 # ============================
 # Launch app
 # ============================
-iface.launch(ssr_mode=False)
+iface.launch()
+
 
 
