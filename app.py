@@ -16,7 +16,7 @@ matplotlib.rcParams.update({
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="DiabetIQ · Risk Assessment",
+    page_title="Diabetes · Risk Assessment",
     page_icon="🩸",
     layout="centered"
 )
