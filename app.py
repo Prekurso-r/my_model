@@ -270,8 +270,8 @@ details[open] .streamlit-expanderHeader { border-radius: 10px 10px 0 0 !importan
 st.markdown("""
 <div class="hero">
     <div class="hero-logo">🩸</div>
-    <h1>Diabetes Risk Prediction AI</h1>
-    <p>AI-powered diabetes risk assessment using XGBoost & explainable SHAP analysis. Developed by Kirubel Muluken
+    <h1>DiabetIQ</h1>
+    <p>AI-powered diabetes risk assessment using XGBoost & explainable SHAP analysis.
     Fill in the patient profile below to receive an instant prediction.</p>
 </div>
 """, unsafe_allow_html=True)
@@ -288,16 +288,107 @@ expected_cols = [
     'smoking_history_not current'
 ]
 
+# ── BMI Calculator ────────────────────────────────────────────────────────────
+if "calc_bmi" not in st.session_state:
+    st.session_state.calc_bmi = None
+
+st.markdown('<p class="section-label">BMI Calculator</p>', unsafe_allow_html=True)
+st.markdown('<p class="section-title">📐 Calculate Your BMI</p>', unsafe_allow_html=True)
+st.markdown('<div class="card">', unsafe_allow_html=True)
+
+unit_system = st.radio(
+    "Unit system", ["Metric (kg / cm)", "Imperial (lbs / ft·in)"],
+    horizontal=True, label_visibility="collapsed"
+)
+
+if unit_system == "Metric (kg / cm)":
+    bc1, bc2 = st.columns(2)
+    with bc1:
+        calc_weight_kg = st.number_input("Weight (kg)", 20.0, 300.0, 70.0, step=0.5)
+    with bc2:
+        calc_height_cm = st.number_input("Height (cm)", 100.0, 250.0, 170.0, step=0.5)
+    calc_bmi_val = calc_weight_kg / ((calc_height_cm / 100) ** 2)
+else:
+    bc1, bc2, bc3 = st.columns(3)
+    with bc1:
+        calc_weight_lbs = st.number_input("Weight (lbs)", 44.0, 660.0, 154.0, step=1.0)
+    with bc2:
+        calc_feet = st.number_input("Height (ft)", 3, 8, 5)
+    with bc3:
+        calc_inches = st.number_input("Height (in)", 0, 11, 7)
+    total_inches = calc_feet * 12 + calc_inches
+    calc_bmi_val = (calc_weight_lbs / (total_inches ** 2)) * 703
+
+# BMI category logic
+if calc_bmi_val < 18.5:
+    bmi_cat, bmi_col, bmi_tip = "Underweight", "#64b5f6", "Consider consulting a nutritionist."
+elif calc_bmi_val < 25.0:
+    bmi_cat, bmi_col, bmi_tip = "Normal weight", "#00d4aa", "You are within a healthy BMI range."
+elif calc_bmi_val < 30.0:
+    bmi_cat, bmi_col, bmi_tip = "Overweight", "#ffb830", "Moderate lifestyle changes may help."
+else:
+    bmi_cat, bmi_col, bmi_tip = "Obese", "#ff4f6e", "Please consider speaking with a healthcare provider."
+
+# Visual BMI scale — needle position clamped 0–100%
+scale_pct = min(max((calc_bmi_val - 10) / (45 - 10) * 100, 0), 100)
+
+st.markdown(f"""
+<div style="margin: 1.2rem 0 0.6rem;">
+    <!-- Scale bar -->
+    <div style="position:relative; height:12px; border-radius:100px; overflow:hidden;
+         background: linear-gradient(90deg,
+             #64b5f6 0%, #64b5f6 20%,
+             #00d4aa 20%, #00d4aa 43%,
+             #ffb830 43%, #ffb830 63%,
+             #ff4f6e 63%, #ff4f6e 100%);">
+        <!-- Needle -->
+        <div style="position:absolute; top:-3px; left:calc({scale_pct:.1f}% - 2px);
+             width:4px; height:18px; background:#fff;
+             border-radius:2px; box-shadow:0 0 6px rgba(255,255,255,0.8);"></div>
+    </div>
+    <!-- Labels -->
+    <div style="display:flex; justify-content:space-between;
+         font-size:0.65rem; color:var(--muted); margin-top:0.35rem; letter-spacing:0.04em;">
+        <span>10</span><span>18.5<br><span style="color:#64b5f6">Under</span></span>
+        <span>25<br><span style="color:#00d4aa">Normal</span></span>
+        <span>30<br><span style="color:#ffb830">Over</span></span>
+        <span style="text-align:right">45+<br><span style="color:#ff4f6e">Obese</span></span>
+    </div>
+</div>
+
+<!-- Result pill -->
+<div style="display:flex; align-items:center; gap:1.2rem; margin-top:1.2rem;
+     background:var(--surface2); border:1px solid rgba(255,255,255,0.07);
+     border-radius:12px; padding:1rem 1.4rem;">
+    <div style="font-family:'Syne',sans-serif; font-size:2.8rem; font-weight:800;
+         color:{bmi_col}; line-height:1;">{calc_bmi_val:.1f}</div>
+    <div>
+        <div style="font-family:'Syne',sans-serif; font-weight:700;
+             font-size:1rem; color:{bmi_col}; margin-bottom:0.2rem;">{bmi_cat}</div>
+        <div style="font-size:0.8rem; color:var(--muted);">{bmi_tip}</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+if st.button("✅ Use this BMI in the assessment", use_container_width=False):
+    st.session_state.calc_bmi = round(calc_bmi_val, 1)
+    st.success(f"BMI {calc_bmi_val:.1f} applied to the Patient Profile below.")
+
+st.markdown('</div>', unsafe_allow_html=True)
+
 # ── Section 1 – Patient profile ───────────────────────────────────────────────
 st.markdown('<p class="section-label">Step 1</p>', unsafe_allow_html=True)
 st.markdown('<p class="section-title">🧑‍⚕️ Patient Profile</p>', unsafe_allow_html=True)
 st.markdown('<div class="card">', unsafe_allow_html=True)
 
+# Pre-fill BMI from calculator if used
+_bmi_default = float(st.session_state.calc_bmi) if st.session_state.calc_bmi else 25.0
+
 col1, col2 = st.columns(2)
 with col1:
     gender = st.selectbox("Gender", ["Male", "Female", "Other"])
     age    = st.number_input("Age (years)", 1, 120, 30)
-    bmi    = st.number_input("Body Mass Index (BMI)", 10.0, 80.0, 25.0, step=0.1)
+    bmi    = st.number_input("Body Mass Index (BMI)", 10.0, 80.0, _bmi_default, step=0.1)
 with col2:
     hypertension  = st.selectbox("Hypertension",  [0, 1], format_func=lambda x: "Yes" if x else "No")
     heart_disease = st.selectbox("Heart Disease",  [0, 1], format_func=lambda x: "Yes" if x else "No")
@@ -475,7 +566,7 @@ if predict:
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="footer-note">
-    ⚠️ DiabetIQ is intended for educational and clinical decision-support use only —
+    ⚠️ This app is intended for educational and clinical decision-support use only —
     it does not replace professional medical advice, diagnosis, or treatment.
 </div>
 """, unsafe_allow_html=True)
