@@ -16,7 +16,7 @@ matplotlib.rcParams.update({
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Diabetes · Risk Assessment",
+    page_title="DiabetIQ · Risk Assessment",
     page_icon="🩸",
     layout="centered"
 )
@@ -270,8 +270,8 @@ details[open] .streamlit-expanderHeader { border-radius: 10px 10px 0 0 !importan
 st.markdown("""
 <div class="hero">
     <div class="hero-logo">🩸</div>
-    <h1>Diabetes Prediction AI</h1>
-    <p>AI-powered diabetes risk assessment using XGBoost & explainable SHAP analysis. Developed by Kirubel Muluken.
+    <h1>DiabetIQ</h1>
+    <p>AI-powered diabetes risk assessment using XGBoost & explainable SHAP analysis.
     Fill in the patient profile below to receive an instant prediction.</p>
 </div>
 """, unsafe_allow_html=True)
@@ -417,41 +417,44 @@ with col4:
         help="Fasting blood glucose. Normal < 100 mg/dL"
     )
 
-# Live reference mini-guide
-st.markdown(f"""
-<div style="display:flex; gap:0.8rem; margin-top:1rem; flex-wrap:wrap;">
-    <div style="flex:1; min-width:140px; background:rgba(0,212,170,0.08);
-         border:1px solid rgba(0,212,170,0.2); border-radius:10px; padding:0.7rem 1rem;">
-        <div style="font-size:0.7rem; letter-spacing:.1em; text-transform:uppercase;
-             color:var(--muted); margin-bottom:0.25rem;">HbA1c entered</div>
-        <div style="font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800;
-             color:{'#ff4f6e' if hba1c>=6.5 else '#ffb830' if hba1c>=5.7 else '#00d4aa'};">
-             {hba1c:.1f}%</div>
-        <div style="font-size:0.72rem; color:var(--muted); margin-top:0.15rem;">
-             {'Diabetic range' if hba1c>=6.5 else 'Pre-diabetic range' if hba1c>=5.7 else 'Normal range'}</div>
-    </div>
-    <div style="flex:1; min-width:140px; background:rgba(0,212,170,0.08);
-         border:1px solid rgba(0,212,170,0.2); border-radius:10px; padding:0.7rem 1rem;">
-        <div style="font-size:0.7rem; letter-spacing:.1em; text-transform:uppercase;
-             color:var(--muted); margin-bottom:0.25rem;">Glucose entered</div>
-        <div style="font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800;
-             color:{'#ff4f6e' if glucose>=200 else '#ffb830' if glucose>=100 else '#00d4aa'};">
-             {glucose:.0f} mg/dL</div>
-        <div style="font-size:0.72rem; color:var(--muted); margin-top:0.15rem;">
-             {'High glucose' if glucose>=200 else 'Elevated glucose' if glucose>=100 else 'Normal glucose'}</div>
-    </div>
-    <div style="flex:1; min-width:140px; background:rgba(0,212,170,0.08);
-         border:1px solid rgba(0,212,170,0.2); border-radius:10px; padding:0.7rem 1rem;">
-        <div style="font-size:0.7rem; letter-spacing:.1em; text-transform:uppercase;
-             color:var(--muted); margin-bottom:0.25rem;">BMI entered</div>
-        <div style="font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800;
-             color:{'#ff4f6e' if bmi>=30 else '#ffb830' if bmi>=25 else '#00d4aa'};">
-             {bmi:.1f}</div>
-        <div style="font-size:0.72rem; color:var(--muted); margin-top:0.15rem;">
-             {'Obese' if bmi>=30 else 'Overweight' if bmi>=25 else 'Normal weight'}</div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+# Live reference mini-guide — pre-compute ALL conditionals before injecting into HTML
+hba1c_col = "#ff4f6e" if hba1c >= 6.5 else ("#ffb830" if hba1c >= 5.7 else "#00d4aa")
+hba1c_lbl = "Diabetic range" if hba1c >= 6.5 else ("Pre-diabetic range" if hba1c >= 5.7 else "Normal range")
+gluc_col  = "#ff4f6e" if glucose >= 200 else ("#ffb830" if glucose >= 100 else "#00d4aa")
+gluc_lbl  = "High glucose" if glucose >= 200 else ("Elevated glucose" if glucose >= 100 else "Normal glucose")
+bmi_gc    = "#ff4f6e" if bmi >= 30 else ("#ffb830" if bmi >= 25 else "#00d4aa")
+bmi_glbl  = "Obese" if bmi >= 30 else ("Overweight" if bmi >= 25 else "Normal weight")
+
+mini_html = (
+    '<div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;">'
+
+    '<div style="flex:1;min-width:140px;background:rgba(0,212,170,0.08);'
+    'border:1px solid rgba(0,212,170,0.2);border-radius:10px;padding:0.7rem 1rem;">'
+    '<div style="font-size:0.7rem;letter-spacing:.1em;text-transform:uppercase;'
+    'color:#7a9ea8;margin-bottom:0.25rem;">HbA1c entered</div>'
+    '<div style="font-size:1.4rem;font-weight:800;color:' + hba1c_col + ';">' + f"{hba1c:.1f}%" + '</div>'
+    '<div style="font-size:0.72rem;color:#7a9ea8;margin-top:0.15rem;">' + hba1c_lbl + '</div>'
+    '</div>'
+
+    '<div style="flex:1;min-width:140px;background:rgba(0,212,170,0.08);'
+    'border:1px solid rgba(0,212,170,0.2);border-radius:10px;padding:0.7rem 1rem;">'
+    '<div style="font-size:0.7rem;letter-spacing:.1em;text-transform:uppercase;'
+    'color:#7a9ea8;margin-bottom:0.25rem;">Glucose entered</div>'
+    '<div style="font-size:1.4rem;font-weight:800;color:' + gluc_col + ';">' + f"{glucose:.0f} mg/dL" + '</div>'
+    '<div style="font-size:0.72rem;color:#7a9ea8;margin-top:0.15rem;">' + gluc_lbl + '</div>'
+    '</div>'
+
+    '<div style="flex:1;min-width:140px;background:rgba(0,212,170,0.08);'
+    'border:1px solid rgba(0,212,170,0.2);border-radius:10px;padding:0.7rem 1rem;">'
+    '<div style="font-size:0.7rem;letter-spacing:.1em;text-transform:uppercase;'
+    'color:#7a9ea8;margin-bottom:0.25rem;">BMI entered</div>'
+    '<div style="font-size:1.4rem;font-weight:800;color:' + bmi_gc + ';">' + f"{bmi:.1f}" + '</div>'
+    '<div style="font-size:0.72rem;color:#7a9ea8;margin-top:0.15rem;">' + bmi_glbl + '</div>'
+    '</div>'
+
+    '</div>'
+)
+st.markdown(mini_html, unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -500,35 +503,33 @@ if predict:
         interp = ("The model detects a <strong>high likelihood of diabetes</strong>. "
                   "Multiple risk factors are present. Immediate clinical evaluation is strongly advised.")
 
-    st.markdown(f"""
-    <div class="card" style="margin-top:0.5rem;">
-        <p class="section-label">Assessment Result</p>
-        <div class="result-grid">
-            <div class="result-metric">
-                <div class="label">Risk Probability</div>
-                <div class="value {'accent' if risk_key=='low' else 'warn' if risk_key=='medium' else 'danger'}">
-                    {pct:.1f}%
-                </div>
-            </div>
-            <div class="result-metric">
-                <div class="label">Risk Category</div>
-                <div class="value {'accent' if risk_key=='low' else 'warn' if risk_key=='medium' else 'danger'}">
-                    {risk_label}
-                </div>
-            </div>
-        </div>
+    # Pre-compute every dynamic value — no ternaries inside HTML strings
+    value_cls   = "accent" if risk_key == "low" else ("warn" if risk_key == "medium" else "danger")
+    interp_cls  = "" if risk_key == "low" else ("warn" if risk_key == "medium" else "danger")
+    bar_width   = f"{min(pct, 100):.1f}%"
+    pct_str     = f"{pct:.1f}%"
 
-        <div class="prog-wrap">
-            <div class="prog-bar {risk_key}" style="width:{min(pct,100):.1f}%;"></div>
-        </div>
-
-        <span class="risk-badge {risk_key}">{badge_icon} {risk_label}</span>
-
-        <div class="interp-box {'warn' if risk_key=='medium' else 'danger' if risk_key=='high' else ''}">
-            {interp}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    result_html = (
+        '<div class="card" style="margin-top:0.5rem;">'
+        '<p class="section-label">Assessment Result</p>'
+        '<div class="result-grid">'
+        '<div class="result-metric">'
+        '<div class="label">Risk Probability</div>'
+        '<div class="value ' + value_cls + '">' + pct_str + '</div>'
+        '</div>'
+        '<div class="result-metric">'
+        '<div class="label">Risk Category</div>'
+        '<div class="value ' + value_cls + '">' + risk_label + '</div>'
+        '</div>'
+        '</div>'
+        '<div class="prog-wrap">'
+        '<div class="prog-bar ' + risk_key + '" style="width:' + bar_width + ';"></div>'
+        '</div>'
+        '<span class="risk-badge ' + risk_key + '">' + badge_icon + ' ' + risk_label + '</span>'
+        '<div class="interp-box ' + interp_cls + '">' + interp + '</div>'
+        '</div>'
+    )
+    st.markdown(result_html, unsafe_allow_html=True)
 
     # ── SHAP waterfall ────────────────────────────────────────────────────────
     st.markdown('<p class="section-label" style="margin-top:2rem;">Explainability</p>', unsafe_allow_html=True)
@@ -566,7 +567,7 @@ if predict:
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="footer-note">
-    ⚠️ This app is intended for educational and clinical decision-support use only —
+    ⚠️ DiabetIQ is intended for educational and clinical decision-support use only —
     it does not replace professional medical advice, diagnosis, or treatment.
 </div>
 """, unsafe_allow_html=True)
