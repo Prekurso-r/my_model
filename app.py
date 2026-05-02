@@ -16,7 +16,7 @@ matplotlib.rcParams.update({
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="DiabetIQ · Risk Assessment",
+    page_title="Diabetes Prediction · Risk Assessment",
     page_icon="🩸",
     layout="centered"
 )
@@ -270,7 +270,7 @@ details[open] .streamlit-expanderHeader { border-radius: 10px 10px 0 0 !importan
 st.markdown("""
 <div class="hero">
     <div class="hero-logo">🩸</div>
-    <h1>DiabetIQ</h1>
+    <h1>Diabetes Prediction AI</h1>
     <p>AI-powered diabetes risk assessment using XGBoost & explainable SHAP analysis.
     Fill in the patient profile below to receive an instant prediction.</p>
 </div>
