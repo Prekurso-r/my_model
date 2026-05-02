@@ -567,7 +567,7 @@ if predict:
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="footer-note">
-    ⚠️ DiabetIQ is intended for educational and clinical decision-support use only —
+    ⚠️ This app is intended for educational and clinical decision-support use only —
     it does not replace professional medical advice, diagnosis, or treatment.
 </div>
 """, unsafe_allow_html=True)
